@@ -2,6 +2,7 @@
 using ConfigureSettings.API.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ConfigureSettings.API.Controllers
 {
@@ -17,17 +18,17 @@ namespace ConfigureSettings.API.Controllers
 
         // GET: api/Aplications
         [HttpGet]
-        public IActionResult GetAllAplications()
+        public async Task<IActionResult> GetAllAplicationsAsync()
         {
-            IEnumerable<Aplications> aplications = _dataRepository.GetAll();
+            IEnumerable<Aplications> aplications = await _dataRepository.GetAllAsync();
             return Ok(aplications);
         }
 
         // GET: api/Aplication/1
         [HttpGet("{id}", Name = "GetAplicationsById")]
-        public IActionResult GetAplicationsById(int id)
+        public async Task<IActionResult>GetAplicationsByIdAsync(int id)
         {
-            Aplications aplication = _dataRepository.Get(id);
+            Aplications aplication = await _dataRepository.GetByIdAsync(id);
             if (aplication == null)
             {
                 return NotFound("The Aplication record couldn't be found.");
@@ -37,13 +38,13 @@ namespace ConfigureSettings.API.Controllers
 
         // Add: api/Aplication
         [HttpPost]
-        public IActionResult AddAplication([FromBody] Aplications aplication)
+        public async Task<IActionResult> AddAplicationAsync([FromBody] Aplications aplication)
         {
             if (aplication == null)
             {
                 return BadRequest("Aplication is null.");
             }
-            _dataRepository.Add(aplication);
+            await _dataRepository.AddAsync(aplication);
             return CreatedAtRoute(
                   "GetAplicationsById",
                   new { id = aplication.AplicationId },
@@ -52,18 +53,18 @@ namespace ConfigureSettings.API.Controllers
 
         // Update: api/Aplication/1
         [HttpPut("{id}")]
-        public IActionResult UpdateAplicationById(int id, [FromBody] Aplications aplication)
+        public async Task<IActionResult> UpdateAplicationByIdAsync(int id, [FromBody] Aplications aplication)
         {
             if (aplication == null)
             {
                 return BadRequest("Aplication is null.");
             }
-            Aplications aplicationToUpdate = _dataRepository.Get(id);
+            Aplications aplicationToUpdate = await _dataRepository.GetByIdAsync(id);
             if (aplicationToUpdate == null)
             {
                 return NotFound("The Aplication record couldn't be found.");
             }
-            _dataRepository.Update(aplicationToUpdate, aplication);
+            await _dataRepository.UpdateAsync(aplicationToUpdate, aplication);
             return CreatedAtRoute(
                   "GetAplicationsById",
                   new { id = aplication.AplicationId },
@@ -72,14 +73,14 @@ namespace ConfigureSettings.API.Controllers
 
         // DELETE: api/Aplication/1
         [HttpDelete("{id}")]
-        public IActionResult DeleteAplicationById(int id)
+        public async Task<IActionResult> DeleteAplicationByIdAsync(int id)
         {
-            Aplications aplication = _dataRepository.Get(id);
+            Aplications aplication = await _dataRepository.GetByIdAsync(id);
             if (aplication == null)
             {
                 return NotFound("The Aplication record couldn't be found.");
             }
-            _dataRepository.Delete(aplication);
+            await _dataRepository.DeleteAsync(aplication);
             return NoContent();
         }
     }

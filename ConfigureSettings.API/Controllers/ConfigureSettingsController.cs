@@ -2,6 +2,7 @@
 using ConfigureSettings.API.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ConfigureSettings.API.Controllers
 {
@@ -10,24 +11,38 @@ namespace ConfigureSettings.API.Controllers
     public class ConfigureSettingsController : ControllerBase
     {
         private readonly IDataRepository<Settings> _dataRepository;
-        public ConfigureSettingsController(IDataRepository<Settings> dataRepository)
+        private readonly IEnvironventRepository<Settings> _environventRepository;
+        public ConfigureSettingsController(IDataRepository<Settings> dataRepository, IEnvironventRepository<Settings> environventRepository)
         {
             _dataRepository = dataRepository;
+            _environventRepository = environventRepository;
         }
 
         // GET: api/Settings
         [HttpGet]
-        public IActionResult GetAllSettings()
+        public async Task<IActionResult> GetAllSettingsAsync()
         {
-            IEnumerable<Settings> setting = _dataRepository.GetAll();
-            return Ok(setting);
+            IEnumerable<Settings> settings = await _dataRepository.GetAllAsync();
+            return Ok(settings);
         }
 
         // GET: api/Settings/1
         [HttpGet("{id}", Name = "GetSettingById")]
-        public IActionResult GetSettingById(int id)
+        public async Task<IActionResult> GetSettingByIdAsync(int id)
         {
-            Settings settings = _dataRepository.Get(id);
+            Settings settings = await _dataRepository.GetByIdAsync(id);
+            if (settings == null)
+            {
+                return NotFound("The Settings record couldn't be found.");
+            }
+            return Ok(settings);
+        }
+
+        // GET: api/Settings/CRM
+        [HttpGet("/by-aplication/{name}")]
+        public async Task<IActionResult> GetSettingByAplicationNameAsync(string name)
+        {
+            IEnumerable<Settings> settings = await _environventRepository.GetByAplicationNameAsync(name);
             if (settings == null)
             {
                 return NotFound("The Settings record couldn't be found.");
@@ -37,13 +52,13 @@ namespace ConfigureSettings.API.Controllers
 
         // Add: api/Settings
         [HttpPost]
-        public IActionResult AddSetting([FromBody] Settings settings)
+        public async Task<IActionResult> AddSettingAsync([FromBody] Settings settings)
         {
             if (settings == null)
             {
                 return BadRequest("Settings is null.");
             }
-            _dataRepository.Add(settings);
+            await _dataRepository.AddAsync(settings);
             return CreatedAtRoute(
                   "GetSettingById",
                   new { id = settings.SettingId },
@@ -52,31 +67,34 @@ namespace ConfigureSettings.API.Controllers
 
         // Update: api/Settings/1
         [HttpPut("{id}")]
-        public IActionResult UpdateSettingById(int id, [FromBody] Settings settings)
+        public async Task<IActionResult> UpdateSettingByIdAsync(int id, [FromBody] Settings settings)
         {
             if (settings == null)
             {
                 return BadRequest("Settings is null.");
             }
-            Settings settingsToUpdate = _dataRepository.Get(id);
+            Settings settingsToUpdate = await _dataRepository.GetByIdAsync(id);
             if (settingsToUpdate == null)
             {
                 return NotFound("The Settings record couldn't be found.");
             }
-            _dataRepository.Update(settingsToUpdate, settings);
-            return NoContent();
+            await _dataRepository.UpdateAsync(settingsToUpdate, settings);
+            return CreatedAtRoute(
+                  "GetSettingById",
+                  new { id = settings.SettingId },
+                  settings);
         }
 
         // DELETE: api/Settings/1
         [HttpDelete("{id}")]
-        public IActionResult DeleteSettingById(int id)
+        public async Task<IActionResult> DeleteSettingByIdAsync(int id)
         {
-            Settings settings = _dataRepository.Get(id);
+            Settings settings = await _dataRepository.GetByIdAsync(id);
             if (settings == null)
             {
                 return NotFound("The Settings record couldn't be found.");
             }
-            _dataRepository.Delete(settings);
+            await _dataRepository.DeleteAsync(settings);
             return NoContent();
         }
     }

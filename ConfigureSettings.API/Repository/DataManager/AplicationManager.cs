@@ -1,9 +1,7 @@
 ﻿using ConfigureSettings.API.Context;
 using ConfigureSettings.API.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ConfigureSettings.API.Models.DataManager
@@ -15,34 +13,30 @@ namespace ConfigureSettings.API.Models.DataManager
         {
             _settingsContext = context;
         }
-        public void Add(Aplications entity)
+        public async Task AddAsync(Aplications entity)
         {
             _settingsContext.Set<Aplications>().Add(entity);
-            //_settingsContext.Entry(entity.Settings).State = EntityState.Detached;
-            _settingsContext.SaveChanges();
+            await _settingsContext.SaveChangesAsync();
         }
 
-        public void Delete(Aplications entity)
+        public async Task DeleteAsync(Aplications entity)
         {
             _settingsContext.Aplications.Remove(entity);
-            _settingsContext.SaveChanges();
+           await _settingsContext.SaveChangesAsync();
         }
 
-        public Aplications Get(int id)
+        public async Task<Aplications> GetByIdAsync(int id)
         {
-            return _settingsContext.Aplications
-                  .FirstOrDefault(e => e.AplicationId == id);
+          return await _settingsContext.Aplications
+                  .FirstOrDefaultAsync(e => e.AplicationId == id);
         }
 
-        public IEnumerable<Aplications> GetAll()
-        {
-            return _settingsContext.Aplications.ToList();
-        }
+        public async Task<IEnumerable<Aplications>> GetAllAsync() => await _settingsContext.Aplications.ToListAsync();
 
-        public void Update(Aplications aplications, Aplications entity)
+        public async Task UpdateAsync(Aplications aplications, Aplications entity)
         {
             aplications.Name = entity.Name;
-            _settingsContext.SaveChanges();
+            await _settingsContext.SaveChangesAsync();
         }
     }
 }

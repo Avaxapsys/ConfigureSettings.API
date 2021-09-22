@@ -34,6 +34,7 @@ namespace ConfigureSettings.API
             services.AddDbContext<SettingsContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:ConfigureDB_Connection_String"]));
             services.AddScoped<IDataRepository<Settings>, ConfigureSettingsManager>();
             services.AddScoped<IDataRepository<Aplications>, AplicationManager>();
+            services.AddScoped<IEnvironventRepository<Settings>, ConfigureSettingsManager>();
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
